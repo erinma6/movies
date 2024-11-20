@@ -3,3 +3,38 @@
 ## Description
 
 ## Missing value analysis
+
+```{r}
+movies=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/movies.csv')
+ratings=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv')
+```
+
+```{r}
+result <- merge(movies, ratings, by = "movieId", all = TRUE)
+```
+
+```{r}
+summary(result)
+
+```
+
+```{r}
+library(tidyverse)
+
+na_counts <- colSums(is.na(result))
+
+na_df <- data.frame(
+  Column = names(na_counts),
+  NA_Count = na_counts
+)
+
+ggplot(na_df, aes(x = Column, y = NA_Count)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(
+    title = "Number of NA Values by Column",
+    x = "Column",
+    y = "NA Count"
+  )
+```
+
+After merging the dataset movies with the dataset ratings, the graph and summary plot show us that there are around 3000 NA values in rating, timestamp, and userId. These are all columns in the original ratings dataset. This means that there are many movies that do not have ratings by any users. 
