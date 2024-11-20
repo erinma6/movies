@@ -5,3 +5,38 @@
 The data we are using primarily are "MovieLens" data. They were collected by GroupLens Research, a research group at the University of Minnesota, Twin Cities, aimed to provide recommendations of movies for users. The dataset we are using is called MovieLens 32M, which comprises of 32 million ratings and 2 million tags applied to 87,585 movies by 200,948 users. It includes “links.csv,” which assigns each movie an ID, and also lists out each movie's corresponding ID on IMDb and TMDB (both are movie-rating websites). “movies.csv” comprises of each movie’s title and genres.  “ratings.csv” documents each user’s rating of the movies they have seen. “tags.csv” comprises of user’s tags to the movies, expressed in words or short phrases. The dataset was collected in October 2023. We downloaded the it directly from GroupLens' website. In addition, we are going to cross-reference data from TMDB, which we will be getting via its open API. The data on TMDB are updated on an ongoing basis.
 
 ## Missing value analysis
+
+```{r}
+movies=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/movies.csv')
+ratings=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv')
+```
+
+```{r}
+result <- merge(movies, ratings, by = "movieId", all = TRUE)
+```
+
+```{r}
+summary(result)
+
+```
+
+```{r}
+library(tidyverse)
+
+na_counts <- colSums(is.na(result))
+
+na_df <- data.frame(
+  Column = names(na_counts),
+  NA_Count = na_counts
+)
+
+ggplot(na_df, aes(x = Column, y = NA_Count)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(
+    title = "Number of NA Values by Column",
+    x = "Column",
+    y = "NA Count"
+  )
+```
+
+After merging the dataset movies with the dataset ratings, the graph and summary plot show us that there are around 3000 NA values in rating, timestamp, and userId. These are all columns in the original ratings dataset. This means that there are many movies that do not have ratings by any users. 
