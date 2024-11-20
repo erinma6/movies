@@ -6,7 +6,7 @@ execute:
   echo: true
 
 book:
-  title: "YOUR PROJECT TITLE"
+  title: "Movie Data Anlysis"
   author:
     - Erin Ma (em3910)
     - AUTHOR2 (UNI2)
