@@ -40,3 +40,23 @@ ggplot(na_df, aes(x = Column, y = NA_Count)) +
 ```
 
 After merging the dataset movies with the dataset ratings, the graph and summary plot show us that there are around 3000 NA values in rating, timestamp, and userId. These are all columns in the original ratings dataset. This means that there are many movies that do not have ratings by any users. 
+
+```{r}
+links <- read.csv(file.path(variable, 'links.csv'))
+
+na_counts <- data.frame(
+  Column = c("imdbId", "tmdbId"),
+  NA_Count = c(sum(is.na(links$imdbId)), sum(is.na(links$tmdbId)))
+)
+
+ggplot(na_counts, aes(x = Column, y = NA_Count, fill = Column)) +
+  geom_bar(stat = "identity", color = "black") +
+  labs(
+    title = "Count of NA Values in imdbId and tmdbId",
+    x = "Column",
+    y = "Number of NA Values"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+```
+The "links.csv" file shows each movie's corresponding ID in IMDb and TMDB. The graph above shows that some movies do not have corresponding IDs in TMDB, because those movies are not found on TMDB.
