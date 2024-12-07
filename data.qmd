@@ -7,8 +7,11 @@ The data we are using primarily are "MovieLens" data. They were collected by Gro
 ## Missing value analysis
 
 ```{r}
-movies=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/movies.csv')
-ratings=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv')
+# Change this as needed
+variable <- '/Users/melodyma/Downloads/ml-32m'
+
+movies <- read.csv(file.path(variable, 'movies.csv'))
+ratings <- read.csv(file.path(variable, 'ratings.csv'))
 ```
 
 ```{r}
