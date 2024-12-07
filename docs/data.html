@@ -212,14 +212,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="description" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="description"><span class="header-section-number">2.1</span> Description</h2>
+<p>The data we are using primarily are “MovieLens” data. They were collected by GroupLens Research, a research group at the University of Minnesota, Twin Cities, aimed to provide recommendations of movies for users. The dataset we are using is called MovieLens 32M, which comprises of 32 million ratings and 2 million tags applied to 87,585 movies by 200,948 users. It includes “links.csv,” which assigns each movie an ID, and also lists out each movie’s corresponding ID on IMDb and TMDB (both are movie-rating websites). “movies.csv” comprises of each movie’s title and genres. “ratings.csv” documents each user’s rating of the movies they have seen. “tags.csv” comprises of users’ tags to the movies, expressed in words or short phrases. The dataset was collected in October 2023. We downloaded it directly from GroupLens’ website. In addition, we are going to cross-reference data from TMDB, which we will be getting via its open API. The data on TMDB are updated on an ongoing basis.</p>
 </section>
 <section id="missing-value-analysis" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>movies<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/movies.csv'</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ratings<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>variable<span class="ot">=</span><span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/'</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>movies<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/movies.csv'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ratings<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -295,6 +297,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>After merging the dataset movies with the dataset ratings, the graph and summary plot show us that there are around 3000 NA values in rating, timestamp, and userId. These are all columns in the original ratings dataset. This means that there are many movies that do not have ratings by any users.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>links <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(variable, <span class="st">'links.csv'</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>na_counts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Column =</span> <span class="fu">c</span>(<span class="st">"imdbId"</span>, <span class="st">"tmdbId"</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">NA_Count =</span> <span class="fu">c</span>(<span class="fu">sum</span>(<span class="fu">is.na</span>(links<span class="sc">$</span>imdbId)), <span class="fu">sum</span>(<span class="fu">is.na</span>(links<span class="sc">$</span>tmdbId)))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(na_counts, <span class="fu">aes</span>(<span class="at">x =</span> Column, <span class="at">y =</span> NA_Count, <span class="at">fill =</span> Column)) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Count of NA Values in imdbId and tmdbId"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Column"</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of NA Values"</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="data_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The “links.csv” file shows each movie’s corresponding ID in IMDb and TMDB. The graph above shows that some movies do not have corresponding IDs in TMDB, because those movies are not found on TMDB.</p>
 
 
 </section>
