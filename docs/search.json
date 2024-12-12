@@ -38,5 +38,15 @@
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Results</span>"
     ]
+  },
+  {
+    "objectID": "d3graph.html",
+    "href": "d3graph.html",
+    "title": "4  Interactive graph",
+    "section": "",
+    "text": "&lt;!DOCTYPE html&gt;\n\n\n\n\n\nParallel Coordinates\n\n\n\n\n\n\n\n&lt;div id=\"plot\"&gt;&lt;/div&gt;  &lt;!-- Container for the plot --&gt;\n\n&lt;!-- Your custom script --&gt;\n&lt;script src=\"scripts/myscript.js\"&gt;&lt;/script&gt;",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interactive graph</span>"
+    ]
   }
 ]

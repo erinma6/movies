@@ -1,5 +1,4 @@
-// Load data from the CSV file
-d3.csv("EDAV%20Movies/user_genre_proportions.csv")
+d3.csv("../user_genre_proportions.csv")
     .then(function(data) {
         // Log data to ensure it is loaded correctly
         console.log("Data loaded:", data);
@@ -14,7 +13,7 @@ d3.csv("EDAV%20Movies/user_genre_proportions.csv")
         data.forEach(function(d) {
             console.log("Processing row:", d); // Log each row to inspect
 
-            d3.keys(d).forEach(function(key) {
+            Object.keys(d).forEach(function(key) {  // Use Object.keys instead of d3.keys
                 if (key !== "userId") {
                     d[key] = +d[key];  // Convert to number
                     if (isNaN(d[key])) {
@@ -63,3 +62,4 @@ d3.csv("EDAV%20Movies/user_genre_proportions.csv")
     .catch(function(error) {
         console.error("Error loading CSV:", error);  // Log any errors related to CSV loading
     });
+
