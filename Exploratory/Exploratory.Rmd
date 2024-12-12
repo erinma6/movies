@@ -54,17 +54,19 @@ user_genre_proportions <- user_movie_data |>
   group_by(userId) |> 
   summarise(
     Total_Movies = n(), # Total number of movies rated by each user
-    across(Adventure:`Film-Noir`, sum, na.rm = TRUE) # Sum of each genre
+    across(Adventure:`Film.Noir`, sum, na.rm = TRUE) # Sum of each genre
   ) |> 
   mutate(
-    across(Adventure:`Film-Noir`, ~ .x / Total_Movies) # Proportion of each genre
+    across(Adventure:`Film.Noir`, ~ .x / Total_Movies) # Proportion of each genre
   )
 
 # Step 3: Remove the intermediate "Total_Movies" column (optional)
 user_genre_proportions <- user_genre_proportions |> 
   select(-Total_Movies)
 
-write.csv(user_genre_proportions, "~/EDAV Movies/Exploratory Work/user_genre_proportions.csv", row.names = FALSE)
+user_genre_proportions$userId <- as.factor(user_genre_proportions$userId)
+
+write.csv(user_genre_proportions, "~/EDAV Movies/Exploratory/user_genre_proportions.csv", row.names = FALSE)
 
 
 # Print the resulting dataframe

@@ -12,7 +12,7 @@ library(grid)
 ```
 
 ```{r}
-user_genre_proportions <- read.csv("~/EDAV Movies/Exploratory Work/user_genre_proportions.csv")
+user_genre_proportions <- read.csv("~/EDAV Movies/Exploratory/user_genre_proportions.csv")
 ```
 
 ```{r}
@@ -116,7 +116,7 @@ Topic 2:
 Could movie ratings include people's bias? If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
 
 ```{r}
-merged_data <- read.csv("~/EDAV Movies/Exploratory Work/Prop_AvgRating.csv")
+merged_data <- read.csv("~/EDAV Movies/Exploratory/Prop_AvgRating.csv")
 ```
 
 ```{r}
@@ -164,8 +164,8 @@ Topic 3:
 Do different genres tend to evoke different emotions in people?
 
 ```{r}
-sentiment <- read.csv("~/EDAV Movies/Exploratory Work/Sentiment.csv")
-movies_ohe <- read.csv("~/EDAV Movies/Exploratory Work/Movies_OHE.csv")
+sentiment <- read.csv("~/EDAV Movies/Exploratory/Sentiment.csv")
+movies_ohe <- read.csv("~/EDAV Movies/Exploratory/Movies_OHE.csv")
 ```
 
 ```{r}
