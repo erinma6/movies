@@ -22,6 +22,11 @@ summary(result)
 ```
 
 ```{r}
+write.csv(result, "result.csv")
+```
+
+
+```{r}
 library(tidyverse)
 
 na_counts <- colSums(is.na(result))

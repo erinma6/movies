@@ -1,1 +1,164 @@
 # Results
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+```{r}
+library(tidyverse)
+
+result=read.csv("result.csv")
+
+avg_rating=result |>
+  group_by(movieId) |>
+  summarise(title = first(title),
+            genres = first(genres),
+            mean_score=mean(rating, na.rm=T)) 
+ggplot(avg_rating, aes(x = mean_score)) +
+  geom_histogram(fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Data", x = "Average Rating", y = "Number of Movies")
+
+```
+
+```{r}
+ratings=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv')
+
+
+avg_rating_user=ratings |>
+  group_by(userId) |>
+  summarise(mean_score=mean(rating)) 
+ggplot(avg_rating_user, aes(x = mean_score)) +
+  geom_histogram(fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Data", x = "Average Rating", y = "Number of Users")
+```
+
+```{r}
+avg_rating$genreCount <- sapply(avg_rating$genres, 
+                                function(x) str_count(x, "\\|") + 1)
+
+ggplot(avg_rating, aes(x = genreCount)) +
+  geom_bar() +
+  labs(title = "Histogram of Data", x = "Genre Count", y = "Number of Movies") +
+  scale_x_continuous(breaks = seq(min(avg_rating$genreCount), max(avg_rating$genreCount),
+                                  by = 1))
+
+range(avg_rating$genreCount)
+
+```
+
+
+
+
+```{r}
+avg_rating_genre=avg_rating |>
+  group_by(genreCount) |>
+  summarise(mean_score_genre=mean(mean_score, na.rm=T), 
+            count_genre=n()) 
+
+ggplot(avg_rating_genre, aes(x = mean_score_genre, y = genreCount)) +
+  geom_point(size = 3, color = "blue") +
+  labs(
+    title = "Cleveland Dot Plot Example",
+    x = "Value",
+    y = "Category"
+  ) +
+  scale_x_continuous(limits=c(0, 5)) +
+   scale_y_continuous(
+    breaks = seq(1, nrow(avg_rating_genre), 1), 
+  )
+  theme_minimal()
+```
+
+```{r}
+ggplot(avg_rating, aes(x=mean_score))+
+  geom_histogram() + 
+  facet_wrap(~genreCount, scales="free_y")
+```
+
+```{r}
+avg_rating_1=filter(avg_rating, genreCount==1)
+
+ggplot(avg_rating_1, aes(x=mean_score))+
+  geom_histogram(alpha=0.5) + 
+  facet_wrap(~genres, scales="free_y")
+```
+
+```{r}
+filter(avg_rating, movieId==172063)
+
+```
+
+
+```{r}
+avg_rating_1$genres <- fct_reorder(avg_rating_1$genres, avg_rating_1$genres, .fun = length, .desc = TRUE)
+
+
+ggplot(avg_rating_1, aes(x = genres)) +
+  geom_bar() +
+  labs(title = "Histogram of Data", x = "Genre Count", y = "Number of Movies") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+```
+
+```{r}
+library(readr)
+
+data <- read_tsv('title.basics.tsv')
+
+data$genres=NULL
+```
+
+```{r}
+data$primaryTitle=NULL
+data$originalTitle=NULL
+```
+
+
+```{r}
+variable='/Users/erinma/Documents/STAT5702/ml-32m/'
+links <- read.csv(file.path(variable, 'links.csv'))
+
+
+joinLink <- merge(avg_rating, links, by = "movieId", all.x = TRUE)
+
+```
+
+```{r}
+data$tconst <- as.numeric(gsub("\\D", "", data$tconst))
+
+```
+
+```{r}
+names(data)[1] <- "imdbId"
+
+```
+
+```{r}
+imdbCombine <- merge(joinLink, data, by = "imdbId", all.x = TRUE)
+
+```
+
+
+```{r}
+imdbCombineMinutes=filter(imdbCombine, runtimeMinutes!='\\N')
+```
+
+```{r}
+imdbCombineMinutes$runtimeMinutes=as.numeric(imdbCombineMinutes$runtimeMinutes)
+
+```
+
+
+```{r}
+ggplot(imdbCombineMinutes, aes(x=runtimeMinutes, y=mean_score))+
+  geom_hex()+
+  scale_fill_distiller(palette='Reds', direction=1) + 
+  facet_wrap(~titleType) +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+```
+
+=======
+>>>>>>> parent of 65951ae (progress)
