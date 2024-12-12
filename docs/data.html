@@ -219,9 +219,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>variable<span class="ot">=</span><span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/'</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>movies<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/movies.csv'</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ratings<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>variable<span class="ot">=</span><span class="st">'/Users/melodyma/Downloads/ml-32m'</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>movies<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/melodyma/Downloads/ml-32m/movies.csv'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ratings<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">'/Users/melodyma/Downloads/ml-32m/ratings.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -236,22 +236,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>    movieId          title              genres              userId      
- Min.   :     1   Length:32003357    Length:32003357    Min.   :     1  
- 1st Qu.:  1233   Class :character   Class :character   1st Qu.: 50053  
- Median :  3452   Mode  :character   Mode  :character   Median :100297  
- Mean   : 29332                                         Mean   :100279  
- 3rd Qu.: 44199                                         3rd Qu.:150451  
- Max.   :292757                                         Max.   :200948  
-                                                        NA's   :3153    
-     rating       timestamp        
- Min.   :0.50   Min.   :7.897e+08  
- 1st Qu.:3.00   1st Qu.:1.051e+09  
- Median :3.50   Median :1.273e+09  
- Mean   :3.54   Mean   :1.275e+09  
- 3rd Qu.:4.00   3rd Qu.:1.503e+09  
- Max.   :5.00   Max.   :1.697e+09  
- NA's   :3153   NA's   :3153       </code></pre>
+<pre><code>    movieId          title              genres              userId     
+ Min.   :     1   Length:1108238     Length:1108238     Min.   :   1   
+ 1st Qu.:  1265   Class :character   Class :character   1st Qu.:1701   
+ Median :  3861   Mode  :character   Mode  :character   Median :3400   
+ Mean   : 37423                                         Mean   :3422   
+ 3rd Qu.: 56174                                         3rd Qu.:5152   
+ Max.   :292757                                         Max.   :6781   
+                                                        NA's   :59663  
+     rating        timestamp        
+ Min.   :0.50    Min.   :8.255e+08  
+ 1st Qu.:3.00    1st Qu.:1.048e+09  
+ Median :4.00    Median :1.276e+09  
+ Mean   :3.56    Mean   :1.277e+09  
+ 3rd Qu.:4.00    3rd Qu.:1.506e+09  
+ Max.   :5.00    Max.   :1.697e+09  
+ NA's   :59663   NA's   :59663      </code></pre>
 </div>
 </div>
 <div class="cell">

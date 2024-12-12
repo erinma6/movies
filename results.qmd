@@ -8,10 +8,11 @@ library(dplyr)
 library(tidyverse)
 library(ggplot2)
 library(gridExtra)
+library(grid)
 ```
 
 ```{r}
-user_genre_proportions_read <- read.csv("~/EDAV Movies/Exploratory Work/user_genre_proportions.csv")
+user_genre_proportions <- read.csv("~/EDAV Movies/Exploratory Work/user_genre_proportions.csv")
 ```
 
 ```{r}
@@ -111,7 +112,8 @@ grid.text("Negative Correlation between Genre Selection",
 
 These pairs of genres demonstrate a relatively high negative correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to not watch movies in genre B.
 
-Topic 2: Could movie ratings include people's bias? If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
+Topic 2:
+Could movie ratings include people's bias? If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
 
 ```{r}
 merged_data <- read.csv("~/EDAV Movies/Exploratory Work/Prop_AvgRating.csv")
@@ -122,18 +124,20 @@ genres <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance"
             "Drama", "Action", "Crime", "Thriller", "Horror", "Mystery", "Sci.Fi", 
             "IMAX", "Documentary", "War", "Musical", "Western", "Film.Noir")
 
-avg_ratings_long <- melt(merged_data, 
-                         id.vars = "userId", 
-                         measure.vars = paste0("avg_rating_", genres), 
-                         variable.name = "genre", 
-                         value.name = "avg_rating")
+avg_ratings_long <- merged_data |> 
+  pivot_longer(
+    cols = paste0("avg_rating_", genres),  
+    names_to = "genre",                    
+    values_to = "avg_rating"              
+  )
 
 # Reshape genre proportions
-genre_proportions_long <- melt(merged_data, 
-                               id.vars = "userId", 
-                               measure.vars = genres, 
-                               variable.name = "genre", 
-                               value.name = "proportion")
+genre_proportions_long <- merged_data |> 
+  pivot_longer(
+    cols = all_of(genres),          
+    names_to = "genre",             
+    values_to = "proportion"        
+  )
 
 # Step 3: Combine the reshaped data
 # Standardize genre column names to match (remove "avg_rating_" prefix in avg_ratings_long)
@@ -155,3 +159,42 @@ ggplot(combined_data, aes(x = proportion_group, y = avg_rating, fill = proportio
 ```
 
 By using a proportion cutoff of 0.7, we divide all ratings into two categories: ratings for genres that a specific user watches frequently (when the proportion is greater than or equal to 0.7) and ratings for genres they watch less frequently (when the proportion is less than 0.7). From the boxplot, we can tell that there is a difference in the distribution of average ratings between these two groups, demonstrating that genres watched more often tend to receive higher ratings in general compared to those watched less often.
+
+Topic 3: 
+Do different genres tend to evoke different emotions in people?
+
+```{r}
+sentiment <- read.csv("~/EDAV Movies/Exploratory Work/Sentiment.csv")
+movies_ohe <- read.csv("~/EDAV Movies/Exploratory Work/Movies_OHE.csv")
+```
+
+```{r}
+# Merge sentiment and movie_ohe on 'movieId'
+combined_data <- merge(sentiment, movies_ohe, by = "movieId")
+
+# Select relevant columns (genres and sentiment_score)
+genre_columns <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", 
+                   "Romance", "Drama", "Action", "Crime", "Thriller", "Horror", 
+                   "Mystery", "Sci.Fi", "Documentary", "War", "Musical", 
+                   "Western", "Film.Noir")
+
+# Reshape data to a long format for easier plotting
+long_data <- combined_data %>%
+  select(movieId, sentiment_score, all_of(genre_columns)) %>%
+  pivot_longer(cols = all_of(genre_columns), names_to = "Genre", values_to = "In_Genre") %>%
+  filter(In_Genre == 1)  # Keep only rows where the movie belongs to a genre
+
+long_data$Genre <- recode(long_data$Genre,
+                          "Sci.Fi" = "Sci-Fi",
+                          "Film.Noir" = "Film-Noir")
+
+# Generate boxplots
+ggplot(long_data, aes(x = Genre, y = sentiment_score)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Boxplot of Sentiment Scores by Genre",
+       x = "Genre",
+       y = "Sentiment Score")
+```
+
+In the dataset we used, users assigned tags to movies, which are words or phrases. We utilized the "syuzhet" package to derive the sentiment behind those tags. Positive values represent positive sentiments; zero means neutral sentiments; and negative values reflect negative sentiments. From the graph above, we observe that overall, genres that received a positive sentiment include: Animation, Children, Fantasy (slightly positive), Romance (slightly positive), and Musical. Genres that received a negative sentiment include: Action, Crime, Drama (slightly negative), Film-Noir, Horror, Mystery, Thriller, War, and Western. Genres that received a neutral sentiment are: Adventure, Comedy, Documentary, and Sci-Fi.

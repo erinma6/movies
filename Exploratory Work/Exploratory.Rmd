@@ -102,6 +102,7 @@ library(gridExtra)
 
 ```{r}
 library(ggplot2)
+library("grid")
 ```
 
 
@@ -406,11 +407,15 @@ library(syuzhet)
 
 
 ```{r}
-tags <- read.csv("/Users/melodyma/Downloads/ml-32m/tags.csv")
-tags_sentiment <- tags |> 
-  mutate(sentiment_score = get_sentiment(tag, method = "afinn"))
+# tags <- read.csv("/Users/melodyma/Downloads/ml-32m/tags.csv")
+# tags_sentiment <- tags |> 
+  # mutate(sentiment_score = get_sentiment(tag, method = "afinn"))
 
-print(tags_sentiment)
+# print(tags_sentiment)
+```
+
+```{r}
+tags <- read.csv("/Users/melodyma/Downloads/ml-32m/tags.csv")
 ```
 
 
@@ -419,6 +424,66 @@ tags_sentiment_syuzhet <- tags |>
   mutate(sentiment_score = get_sentiment(tag, method = "syuzhet"))
 
 print(tags_sentiment_syuzhet)
+```
+
+```{r}
+file_path <- "~/EDAV Movies/Exploratory Work/Sentiment.csv"
+write.csv(tags_sentiment_syuzhet, file = file_path, row.names=FALSE)
+sentiment <- read.csv("~/EDAV Movies/Exploratory Work/Sentiment.csv")
+```
+
+```{r}
+file_path <- "~/EDAV Movies/Exploratory Work/Movies_OHE.csv"
+write.csv(movies_ohe, file = file_path, row.names=FALSE)
+movies_ohe <- read.csv("~/EDAV Movies/Exploratory Work/Movies_OHE.csv")
+```
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+
+# Example: Combine sentiment and movie_ohe dataframes
+# Assuming 'sentiment' and 'movie_ohe' have a common key column, e.g., 'movieId'
+
+# Merge sentiment and movie_ohe on 'movieId'
+combined_data <- merge(sentiment, movies_ohe, by = "movieId")
+
+# Select relevant columns (genres and sentiment_score)
+genre_columns <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", 
+                   "Romance", "Drama", "Action", "Crime", "Thriller", "Horror", 
+                   "Mystery", "Sci-Fi", "Documentary", "War", "Musical", 
+                   "Western", "Film-Noir")
+
+# Reshape data to a long format for easier plotting
+long_data <- combined_data %>%
+  select(movieId, sentiment_score, all_of(genre_columns)) %>%
+  pivot_longer(cols = all_of(genre_columns), names_to = "Genre", values_to = "In_Genre") %>%
+  filter(In_Genre == 1)  # Keep only rows where the movie belongs to a genre
+
+# Generate boxplots
+ggplot(long_data, aes(x = Genre, y = sentiment_score)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels for readability
+  labs(title = "Boxplot of Sentiment Scores by Genre",
+       x = "Genre",
+       y = "Sentiment Score")
+```
+
+```{r}
+# Generate facet-wrapped boxplots by genre
+ggplot(long_data, aes(x = "", y = sentiment_score)) +  # Use "" to avoid x-axis clutter
+  geom_boxplot() +
+  facet_wrap(~ Genre, scales = "free_y") +  # Create a facet for each genre
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Remove x-axis text (not needed for faceting)
+        axis.ticks.x = element_blank()) +
+  labs(title = "Boxplot of Sentiment Scores by Genre",
+       x = "",
+       y = "Sentiment Score")
 ```
 
 
