@@ -167,3 +167,201 @@ ggplot(imdbCombineMinutes, aes(x=runtimeMinutes, y=mean_score, color=titleType))
 
 The Heat Map and Scatterplot show that very few title runtime goes above 400 minutes but there generally seems like there is a positive trend between Rating and Title RunTime. Furthermore, it seems that most shorts and tvshorts have the quickest title runtimes and that movie title runtimes seem to be generally higher than shorts 
 
+Topic 1: 
+Are certain genre selections correlated? Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(gridExtra)
+library(grid)
+```
+
+```{r}
+user_genre_proportions <- read.csv("~/EDAV Movies/Exploratory/user_genre_proportions.csv")
+```
+
+```{r}
+data <- user_genre_proportions[, !names(user_genre_proportions) %in% "userId"]
+
+# Ensure the column names are valid (e.g., no special characters)
+colnames(data) <- make.names(colnames(data))
+
+# Select the columns for the specific pairs you want to plot (removing "Children" and "Fantasy")
+pairs_to_plot_p <- list(
+  c("Adventure", "Fantasy"),
+  c("Adventure", "Action"),
+  c("Animation", "Children"),
+  c("Animation", "Fantasy"),
+  c("Children", "Musical"),
+  c("Action", "Sci.Fi")  # Keep Sci.Fi as is since make.names() converts it
+)
+
+# Calculate correlations for each pair
+correlations <- sapply(pairs_to_plot_p, function(pair) {
+  cor(data[[pair[1]]], data[[pair[2]]], use = "complete.obs")
+})
+
+# Create individual scatter plots for each pair, adding the correlation value as text
+plot_list <- lapply(1:length(pairs_to_plot_p), function(i) {
+  pair <- pairs_to_plot_p[[i]]
+  
+  # Replace Sci.Fi with Sci-Fi in the titles
+  plot_title <- gsub("Sci.Fi", "Sci-Fi", paste(pair[1], "vs", pair[2]))
+  
+  ggplot(data, aes(x = .data[[pair[1]]], y = .data[[pair[2]]])) +
+    geom_point() +
+    labs(title = plot_title) +  # Only add the title, leave axis labels unchanged
+    annotate("text", x = max(data[[pair[1]]]), y = max(data[[pair[2]]]), 
+             label = paste("r =", round(correlations[i], 2)), 
+             hjust = 1, vjust = 1, color = "blue") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 9),  # Smaller plot title
+      axis.title.x = element_text(size = 8),  # Smaller x-axis title
+      axis.title.y = element_text(size = 8),  # Smaller y-axis title
+      plot.margin = margin(t = 15, r = 5, b = 5, l = 5)  # Increase top margin
+    )
+})
+
+# Arrange the plots into one panel with adjusted margins
+grid.arrange(grobs = plot_list, ncol = 3)
+
+# Adjust the position of the panel title to avoid clipping
+grid.text("Positive Correlation between Genre Selection", 
+          x = 0.5, y = 0.982, gp = gpar(fontsize = 13, fontface = "bold"))
+```
+These pairs of genres demonstrate a relatively high positive correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to also watch lots of movies in genre B.
+
+```{r}
+# Select the columns for the specific pairs you want to plot (removing "Children" and "Fantasy")
+pairs_to_plot_n <- list(
+  c("Adventure", "Drama"),
+  c("Romance", "Action"),
+  c("Comedy", "Thriller")
+)
+
+# Calculate correlations for each pair
+correlations <- sapply(pairs_to_plot_n, function(pair) {
+  cor(data[[pair[1]]], data[[pair[2]]], use = "complete.obs")
+})
+
+# Create individual scatter plots for each pair, adding the correlation value as text
+plot_list <- lapply(1:length(pairs_to_plot_n), function(i) {
+  pair <- pairs_to_plot_n[[i]]
+  
+  # Replace Sci.Fi with Sci-Fi in the titles
+  plot_title <- gsub("Sci.Fi", "Sci-Fi", paste(pair[1], "vs", pair[2]))
+  
+  ggplot(data, aes(x = .data[[pair[1]]], y = .data[[pair[2]]])) +
+    geom_point() +
+    labs(title = plot_title) +  # Only add the title, leave axis labels unchanged
+    annotate("text", x = max(data[[pair[1]]]), y = max(data[[pair[2]]]), 
+             label = paste("r =", round(correlations[i], 2)), 
+             hjust = 1, vjust = 1, color = "blue") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 9),  # Smaller plot title
+      axis.title.x = element_text(size = 8),  # Smaller x-axis title
+      axis.title.y = element_text(size = 8),  # Smaller y-axis title
+      plot.margin = margin(t = 15, r = 5, b = 5, l = 5)  # Increase top margin
+    )
+})
+
+# Arrange the plots into one panel with adjusted margins
+grid.arrange(grobs = plot_list, ncol = 3)
+
+# Adjust the position of the panel title to avoid clipping
+grid.text("Negative Correlation between Genre Selection", 
+          x = 0.5, y = 0.982, gp = gpar(fontsize = 13, fontface = "bold"))
+```
+
+These pairs of genres demonstrate a relatively high negative correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to not watch movies in genre B.
+
+Topic 2:
+Could movie ratings include people's bias? If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
+
+```{r}
+merged_data <- read.csv("~/EDAV Movies/Exploratory/Prop_AvgRating.csv")
+```
+
+```{r}
+genres <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", 
+            "Drama", "Action", "Crime", "Thriller", "Horror", "Mystery", "Sci.Fi", 
+            "IMAX", "Documentary", "War", "Musical", "Western", "Film.Noir")
+
+avg_ratings_long <- merged_data |> 
+  pivot_longer(
+    cols = paste0("avg_rating_", genres),  
+    names_to = "genre",                    
+    values_to = "avg_rating"              
+  )
+
+# Reshape genre proportions
+genre_proportions_long <- merged_data |> 
+  pivot_longer(
+    cols = all_of(genres),          
+    names_to = "genre",             
+    values_to = "proportion"        
+  )
+
+# Step 3: Combine the reshaped data
+# Standardize genre column names to match (remove "avg_rating_" prefix in avg_ratings_long)
+avg_ratings_long$genre <- gsub("avg_rating_", "", avg_ratings_long$genre)
+combined_data <- merge(avg_ratings_long, genre_proportions_long, by = c("userId", "genre"))
+
+# Step 4: Create a binary indicator for proportion >= 0.7
+combined_data$proportion_group <- ifelse(combined_data$proportion >= 0.7, "Genre Proportion >= 0.7", "Genre Proportion < 0.7")
+
+# Step 5: Create the boxplot
+ggplot(combined_data, aes(x = proportion_group, y = avg_rating, fill = proportion_group)) +
+  geom_boxplot() +
+  labs(title = "Average Rating Distribution and Genre Preferences",
+       x = "Proportion Group",
+       y = "Average Rating") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Genre Proportion >= 0.7" = "skyblue", "Genre Proportion < 0.7" = "salmon")) +
+  theme(legend.position = "none")
+```
+
+By using a proportion cutoff of 0.7, we divide all ratings into two categories: ratings for genres that a specific user watches frequently (when the proportion is greater than or equal to 0.7) and ratings for genres they watch less frequently (when the proportion is less than 0.7). From the boxplot, we can tell that there is a difference in the distribution of average ratings between these two groups, demonstrating that genres watched more often tend to receive higher ratings in general compared to those watched less often.
+
+Topic 3: 
+Do different genres tend to evoke different emotions in people?
+
+```{r}
+sentiment <- read.csv("~/EDAV Movies/Exploratory/Sentiment.csv")
+movies_ohe <- read.csv("~/EDAV Movies/Exploratory/Movies_OHE.csv")
+```
+
+```{r}
+# Merge sentiment and movie_ohe on 'movieId'
+combined_data <- merge(sentiment, movies_ohe, by = "movieId")
+
+# Select relevant columns (genres and sentiment_score)
+genre_columns <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", 
+                   "Romance", "Drama", "Action", "Crime", "Thriller", "Horror", 
+                   "Mystery", "Sci.Fi", "Documentary", "War", "Musical", 
+                   "Western", "Film.Noir")
+
+# Reshape data to a long format for easier plotting
+long_data <- combined_data %>%
+  select(movieId, sentiment_score, all_of(genre_columns)) %>%
+  pivot_longer(cols = all_of(genre_columns), names_to = "Genre", values_to = "In_Genre") %>%
+  filter(In_Genre == 1)  # Keep only rows where the movie belongs to a genre
+
+long_data$Genre <- recode(long_data$Genre,
+                          "Sci.Fi" = "Sci-Fi",
+                          "Film.Noir" = "Film-Noir")
+
+# Generate boxplots
+ggplot(long_data, aes(x = Genre, y = sentiment_score)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Boxplot of Sentiment Scores by Genre",
+       x = "Genre",
+       y = "Sentiment Score")
+```
+
+In the dataset we used, users assigned tags to movies, which are words or phrases. We utilized the "syuzhet" package to derive the sentiment behind those tags. Positive values represent positive sentiments; zero means neutral sentiments; and negative values reflect negative sentiments. From the graph above, we observe that overall, genres that received a positive sentiment include: Animation, Children, Fantasy (slightly positive), Romance (slightly positive), and Musical. Genres that received a negative sentiment include: Action, Crime, Drama (slightly negative), Film-Noir, Horror, Mystery, Thriller, War, and Western. Genres that received a neutral sentiment are: Adventure, Comedy, Documentary, and Sci-Fi.

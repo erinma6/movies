@@ -1,0 +1,495 @@
+---
+title: "Exploratory Analysis"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+movies <- read.csv("/Users/melodyma/Downloads/ml-32m/movies.csv")
+all_genres <- unlist(strsplit(as.character(movies$genres), "\\|"))
+unique_genres <- unique(all_genres)
+print(unique_genres)
+```
+```{r}
+movies <- movies[movies$genres != "(no genres listed)",]
+all_genres <- unlist(strsplit(as.character(movies$genres), "\\|"))
+unique_genres <- unique(all_genres)
+print(unique_genres)
+```
+
+```{r}
+genre_list <- strsplit(movies$genres, "\\|")
+movies_ohe <- movies
+for (genre in unique_genres) {
+  movies_ohe[[genre]] <- sapply(genre_list, function(x) as.integer(genre %in% x))
+}
+```
+
+```{r}
+movies_ohe <- movies_ohe[, !names(movies_ohe) %in% "imax"]
+```
+
+
+```{r}
+ratings <- read.csv("/Users/melodyma/Downloads/ml-32m/ratings.csv")
+```
+
+```{r}
+colnames(user_movie_data)
+```
+
+
+```{r}
+# Step 1: Merge `ratings` and `movies_ohe` on `movieId`
+user_movie_data <- merge(ratings, movies_ohe, by = "movieId")
+
+# Step 2: Group by `userId` and calculate the sum for each genre and the total movies rated
+library(dplyr)
+user_genre_proportions <- user_movie_data |> 
+  group_by(userId) |> 
+  summarise(
+    Total_Movies = n(), # Total number of movies rated by each user
+    across(Adventure:`Film.Noir`, sum, na.rm = TRUE) # Sum of each genre
+  ) |> 
+  mutate(
+    across(Adventure:`Film.Noir`, ~ .x / Total_Movies) # Proportion of each genre
+  )
+
+# Step 3: Remove the intermediate "Total_Movies" column (optional)
+user_genre_proportions <- user_genre_proportions |> 
+  select(-Total_Movies)
+
+user_genre_proportions$userId <- as.factor(user_genre_proportions$userId)
+
+write.csv(user_genre_proportions, "~/EDAV Movies/Exploratory/user_genre_proportions.csv", row.names = FALSE)
+
+
+# Print the resulting dataframe
+print(user_genre_proportions)
+
+```
+
+
+```{r}
+# Example: Assuming your data frame is named user_genre_proportions
+# Exclude the userId column
+data_corr <- user_genre_proportions[, !names(user_genre_proportions) %in%  "userId"]
+
+# Get all pairs of column names
+column_pairs <- combn(names(data_corr), 2, simplify = FALSE)
+
+# Initialize an empty list to store correlation results
+correlations <- list()
+
+# Loop through each pair of columns and calculate the correlation
+for(pair in column_pairs) {
+  correlation <- cor(data_corr[[pair[1]]], data_corr[[pair[2]]], use = "complete.obs")
+  correlations[[paste(pair[1], pair[2], sep = "_")]] <- correlation
+}
+
+# Print correlations
+print(correlations)
+```
+
+
+```{r}
+install.packages("gridExtra")
+library(gridExtra)
+```
+
+```{r}
+library(ggplot2)
+library("grid")
+```
+
+
+```{r}
+
+data <- user_genre_proportions[, !names(user_genre_proportions) %in% "userId"]
+
+# Make sure all column names are valid (e.g., no special characters)
+colnames(data) <- make.names(colnames(data))
+
+# Select the columns for the specific pairs you want to plot
+pairs_to_plot <- list(
+  c("Adventure", "Fantasy"),
+  c("Adventure", "Action"),
+  c("Animation", "Children"),
+  c("Animation", "Fantasy"),
+  c("Children", "Fantasy"),
+  c("Children", "Musical"),
+  c("Action", "Sci.Fi")  # Ensure the name matches after make.names() transformation
+)
+
+# Create individual scatter plots for each pair
+plot_list <- lapply(pairs_to_plot, function(pair) {
+  ggplot(data, aes(x = .data[[pair[1]]], y = .data[[pair[2]]])) +
+    geom_point() +
+    labs(title = paste(pair[1], "vs", pair[2])) +
+    theme_minimal()
+})
+
+# Arrange the plots into one panel
+grid.arrange(grobs = plot_list, ncol = 3)
+
+```
+
+```{r}
+install.packages("grid")
+library("grid")
+```
+
+
+```{r}
+data <- user_genre_proportions[, !names(user_genre_proportions) %in% "userId"]
+
+# Ensure the column names are valid (e.g., no special characters)
+colnames(data) <- make.names(colnames(data))
+
+# Select the columns for the specific pairs you want to plot (removing "Children" and "Fantasy")
+pairs_to_plot <- list(
+  c("Adventure", "Fantasy"),
+  c("Adventure", "Action"),
+  c("Animation", "Children"),
+  c("Animation", "Fantasy"),
+  c("Children", "Musical"),
+  c("Action", "Sci.Fi")  # Keep Sci.Fi as is since make.names() converts it
+)
+
+# Calculate correlations for each pair
+correlations <- sapply(pairs_to_plot, function(pair) {
+  cor(data[[pair[1]]], data[[pair[2]]], use = "complete.obs")
+})
+
+# Create individual scatter plots for each pair, adding the correlation value as text
+plot_list <- lapply(1:length(pairs_to_plot), function(i) {
+  pair <- pairs_to_plot[[i]]
+  
+  # Replace Sci.Fi with Sci-Fi in the titles
+  plot_title <- gsub("Sci.Fi", "Sci-Fi", paste(pair[1], "vs", pair[2]))
+  
+  ggplot(data, aes(x = .data[[pair[1]]], y = .data[[pair[2]]])) +
+    geom_point() +
+    labs(title = plot_title) +  # Only add the title, leave axis labels unchanged
+    annotate("text", x = max(data[[pair[1]]]), y = max(data[[pair[2]]]), 
+             label = paste("r =", round(correlations[i], 2)), 
+             hjust = 1, vjust = 1, color = "blue") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 9),  # Smaller plot title
+      axis.title.x = element_text(size = 8),  # Smaller x-axis title
+      axis.title.y = element_text(size = 8),  # Smaller y-axis title
+      plot.margin = margin(t = 15, r = 5, b = 5, l = 5)  # Increase top margin
+    )
+})
+
+# Arrange the plots into one panel with adjusted margins
+grid.arrange(grobs = plot_list, ncol = 3)
+
+# Adjust the position of the panel title to avoid clipping
+grid.text("Correlation between Genre Selection", 
+          x = 0.5, y = 0.982, gp = gpar(fontsize = 13, fontface = "bold"))
+```
+
+
+```{r}
+# Assuming user_genre_proportions is the dataframe with genre proportions
+# Exclude the userId column to focus on the genre proportions
+genre_proportions <- user_genre_proportions |> 
+  select(-userId)
+
+# Get the five-number summary for all genre proportions
+five_number_summary <- apply(genre_proportions, 2, fivenum)
+
+# Print the five-number summary
+print(five_number_summary)
+```
+
+
+```{r}
+library(GGally)
+library(ggplot2)
+```
+
+
+```{r}
+user_genre_proportions$userId <- as.factor(user_genre_proportions$userId)
+ggparcoord(
+  data = user_genre_proportions,
+  columns = 2:ncol(user_genre_proportions),  # Select genre columns
+  alphaLines = 0.2,
+  splineFactor = TRUE
+) +
+  ggtitle("Parallel Coordinate Plot of User Genre Proportions") +
+  xlab("Genres") +
+  ylab("Proportions") +
+  theme_minimal() +
+  scale_color_manual(values = "grey")
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+
+```{r}
+# List of genres (common across user_movie_data)
+genres <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", 
+            "Drama", "Action", "Crime", "Thriller", "Horror", "Mystery", "Sci-Fi", 
+            "IMAX", "Documentary", "War", "Musical", "Western", "Film-Noir")
+
+# Function to calculate average rating for a specific genre
+calculate_genre_avg_rating <- function(data, genre) {
+  # Filter for rows where the movie belongs to the specified genre
+  genre_data <- data[data[[genre]] == 1, ]
+  
+  # Calculate average rating for each user
+  avg_ratings <- aggregate(rating ~ userId, data = genre_data, mean)
+  
+  # Rename the column for clarity
+  colnames(avg_ratings)[2] <- paste0("avg_rating_", genre)
+  
+  return(avg_ratings)
+}
+
+# Calculate average ratings for all genres and combine results
+all_genre_avg_ratings <- Reduce(function(x, y) merge(x, y, by = "userId", all = TRUE), 
+                                 lapply(genres, function(genre) {
+                                   calculate_genre_avg_rating(user_movie_data, genre)
+                                 }))
+
+# View the resulting dataframe
+head(all_genre_avg_ratings)
+
+```
+
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+# Step 1: Merge the dataframes on 'userId'
+merged_data <- merge(all_genre_avg_ratings, user_genre_proportions, by = "userId")
+
+# Step 2: Reshape the data to long format for plotting
+# Reshape average ratings
+avg_ratings_long <- melt(merged_data, 
+                         id.vars = "userId", 
+                         measure.vars = paste0("avg_rating_", genres), 
+                         variable.name = "genre", 
+                         value.name = "avg_rating")
+
+# Reshape genre proportions
+genre_proportions_long <- melt(merged_data, 
+                               id.vars = "userId", 
+                               measure.vars = genres, 
+                               variable.name = "genre", 
+                               value.name = "proportion")
+
+# Step 3: Combine the reshaped data
+# Standardize genre column names to match (remove "avg_rating_" prefix in avg_ratings_long)
+avg_ratings_long$genre <- gsub("avg_rating_", "", avg_ratings_long$genre)
+combined_data <- merge(avg_ratings_long, genre_proportions_long, by = c("userId", "genre"))
+
+# Step 4: Create the scatterplot
+ggplot(combined_data, aes(x = proportion, y = avg_rating, color = genre)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatterplot of User Proportions vs. Average Ratings by Genre",
+       x = "Proportion of Movies Watched (Genre)",
+       y = "Average Rating (Genre)") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_discrete(name = "Genre")
+```
+
+
+```{r}
+# Step 1: Merge the dataframes on 'userId'
+merged_data <- merge(all_genre_avg_ratings, user_genre_proportions, by = "userId")
+
+# Step 2: Reshape the data to long format for plotting
+# Reshape average ratings
+avg_ratings_long <- melt(merged_data, 
+                         id.vars = "userId", 
+                         measure.vars = paste0("avg_rating_", genres), 
+                         variable.name = "genre", 
+                         value.name = "avg_rating")
+
+# Reshape genre proportions
+genre_proportions_long <- melt(merged_data, 
+                               id.vars = "userId", 
+                               measure.vars = genres, 
+                               variable.name = "genre", 
+                               value.name = "proportion")
+
+# Step 3: Combine the reshaped data
+# Standardize genre column names to match (remove "avg_rating_" prefix in avg_ratings_long)
+avg_ratings_long$genre <- gsub("avg_rating_", "", avg_ratings_long$genre)
+combined_data <- merge(avg_ratings_long, genre_proportions_long, by = c("userId", "genre"))
+
+# Step 4: Filter data to include only rows where the proportion is greater than 0.7
+filtered_data <- combined_data %>%
+  filter(proportion > 0.7)
+
+# Step 5: Create the scatterplot
+ggplot(filtered_data, aes(x = proportion, y = avg_rating, color = genre)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatterplot of User Proportions vs. Average Ratings by Genre",
+       x = "Proportion of Movies Watched (Genre)",
+       y = "Average Rating (Genre)") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_discrete(name = "Genre")
+```
+
+
+```{r}
+# Step 1: Merge the dataframes on 'userId'
+merged_data <- merge(all_genre_avg_ratings, user_genre_proportions, by = "userId")
+file_path <- "~/EDAV Movies/Exploratory Work/Prop_AvgRating.csv"
+write.csv(merged_data, file = file_path, row.names=FALSE)
+merged_data <- read.csv("~/EDAV Movies/Exploratory Work/Prop_AvgRating.csv")
+colnames(merged_data)
+```
+
+
+
+```{r}
+
+# Step 2: Reshape the data to long format for plotting
+# Reshape average ratings
+avg_ratings_long <- melt(merged_data, 
+                         id.vars = "userId", 
+                         measure.vars = paste0("avg_rating_", genres), 
+                         variable.name = "genre", 
+                         value.name = "avg_rating")
+
+# Reshape genre proportions
+genre_proportions_long <- melt(merged_data, 
+                               id.vars = "userId", 
+                               measure.vars = genres, 
+                               variable.name = "genre", 
+                               value.name = "proportion")
+
+# Step 3: Combine the reshaped data
+# Standardize genre column names to match (remove "avg_rating_" prefix in avg_ratings_long)
+avg_ratings_long$genre <- gsub("avg_rating_", "", avg_ratings_long$genre)
+combined_data <- merge(avg_ratings_long, genre_proportions_long, by = c("userId", "genre"))
+
+# Step 4: Create a binary indicator for proportion >= 0.7
+combined_data$proportion_group <- ifelse(combined_data$proportion >= 0.7, "Genre Proportion >= 0.7", "Genre Proportion < 0.7")
+
+# Step 5: Create the boxplot
+ggplot(combined_data, aes(x = proportion_group, y = avg_rating, fill = proportion_group)) +
+  geom_boxplot() +
+  labs(title = "Average Rating Distribution and Genre Preferences",
+       x = "Proportion Group",
+       y = "Average Rating") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Genre Proportion >= 0.7" = "skyblue", "Genre Proportion < 0.7" = "salmon")) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+install.packages("tidytext")
+install.packages("syuzhet")
+```
+
+
+```{r}
+library(tidytext)
+library(dplyr)
+library(syuzhet)
+```
+
+
+```{r}
+# tags <- read.csv("/Users/melodyma/Downloads/ml-32m/tags.csv")
+# tags_sentiment <- tags |> 
+  # mutate(sentiment_score = get_sentiment(tag, method = "afinn"))
+
+# print(tags_sentiment)
+```
+
+```{r}
+tags <- read.csv("/Users/melodyma/Downloads/ml-32m/tags.csv")
+```
+
+
+```{r}
+tags_sentiment_syuzhet <- tags |> 
+  mutate(sentiment_score = get_sentiment(tag, method = "syuzhet"))
+
+print(tags_sentiment_syuzhet)
+```
+
+```{r}
+file_path <- "~/EDAV Movies/Exploratory Work/Sentiment.csv"
+write.csv(tags_sentiment_syuzhet, file = file_path, row.names=FALSE)
+sentiment <- read.csv("~/EDAV Movies/Exploratory Work/Sentiment.csv")
+```
+
+```{r}
+file_path <- "~/EDAV Movies/Exploratory Work/Movies_OHE.csv"
+write.csv(movies_ohe, file = file_path, row.names=FALSE)
+movies_ohe <- read.csv("~/EDAV Movies/Exploratory Work/Movies_OHE.csv")
+```
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+
+# Example: Combine sentiment and movie_ohe dataframes
+# Assuming 'sentiment' and 'movie_ohe' have a common key column, e.g., 'movieId'
+
+# Merge sentiment and movie_ohe on 'movieId'
+combined_data <- merge(sentiment, movies_ohe, by = "movieId")
+
+# Select relevant columns (genres and sentiment_score)
+genre_columns <- c("Adventure", "Animation", "Children", "Comedy", "Fantasy", 
+                   "Romance", "Drama", "Action", "Crime", "Thriller", "Horror", 
+                   "Mystery", "Sci-Fi", "Documentary", "War", "Musical", 
+                   "Western", "Film-Noir")
+
+# Reshape data to a long format for easier plotting
+long_data <- combined_data %>%
+  select(movieId, sentiment_score, all_of(genre_columns)) %>%
+  pivot_longer(cols = all_of(genre_columns), names_to = "Genre", values_to = "In_Genre") %>%
+  filter(In_Genre == 1)  # Keep only rows where the movie belongs to a genre
+
+# Generate boxplots
+ggplot(long_data, aes(x = Genre, y = sentiment_score)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels for readability
+  labs(title = "Boxplot of Sentiment Scores by Genre",
+       x = "Genre",
+       y = "Sentiment Score")
+```
+
+```{r}
+# Generate facet-wrapped boxplots by genre
+ggplot(long_data, aes(x = "", y = sentiment_score)) +  # Use "" to avoid x-axis clutter
+  geom_boxplot() +
+  facet_wrap(~ Genre, scales = "free_y") +  # Create a facet for each genre
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Remove x-axis text (not needed for faceting)
+        axis.ticks.x = element_blank()) +
+  labs(title = "Boxplot of Sentiment Scores by Genre",
+       x = "",
+       y = "Sentiment Score")
+```
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
