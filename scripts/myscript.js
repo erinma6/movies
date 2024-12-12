@@ -1,3 +1,4 @@
+
 d3.csv("../user_genre_proportions.csv")
     .then(function(data) {
         // Log data to ensure it is loaded correctly

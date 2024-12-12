@@ -1,23 +1,14 @@
 # Interactive graph
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parallel Coordinates</title>
+<style>
+  * {
+    font-family: sans-serif;
+  }
+</style> 
 
-    <!-- Include D3.js -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+<div id="plot">
+</div>
 
-    <!-- Include d3-parcoords (local file in 'scripts' folder) -->
-    <script src="scripts/d3.parcoords.js"></script>
-</head>
-<body>
-
-    <div id="plot"></div>  <!-- Container for the plot -->
-
-    <!-- Your custom script -->
-    <script src="scripts/myscript.js"></script>
-</body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="scripts/d3.parcoords.js"></script>
+<script src="scripts/myscript.js"></script> ^like use this
