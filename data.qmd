@@ -7,9 +7,9 @@ The data we are using primarily are "MovieLens" data. They were collected by Gro
 ## Missing value analysis
 
 ```{r}
-variable='/Users/melodyma/Downloads/ml-32m'
-movies=read.csv('/Users/melodyma/Downloads/ml-32m/movies.csv')
-ratings=read.csv('/Users/melodyma/Downloads/ml-32m/ratings.csv')
+variable='/Users/erinma/Documents/STAT5702/ml-32m/'
+movies=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/movies.csv')
+ratings=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv')
 ```
 
 ```{r}
