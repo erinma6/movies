@@ -167,8 +167,8 @@ ggplot(imdbCombineMinutes, aes(x=runtimeMinutes, y=mean_score, color=titleType))
 
 The Heat Map and Scatterplot show that very few title runtime goes above 400 minutes but there generally seems like there is a positive trend between Rating and Title RunTime. Furthermore, it seems that most shorts and tvshorts have the quickest title runtimes and that movie title runtimes seem to be generally higher than shorts 
 
-Topic 1: 
-Are certain genre selections correlated? Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
+## Are certain genre selections correlated?
+Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
 
 ```{r}
 library(dplyr)
@@ -279,8 +279,8 @@ grid.text("Negative Correlation between Genre Selection",
 
 These pairs of genres demonstrate a relatively high negative correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to not watch movies in genre B.
 
-Topic 2:
-Could movie ratings include people's bias? If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
+## Could movie ratings include people's bias?
+If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
 
 ```{r}
 merged_data <- read.csv("/Users/erinma/Documents/STAT5702/nycdata/Exploratory/Prop_AvgRating.csv")
@@ -327,8 +327,7 @@ ggplot(combined_data, aes(x = proportion_group, y = avg_rating, fill = proportio
 
 By using a proportion cutoff of 0.7, we divide all ratings into two categories: ratings for genres that a specific user watches frequently (when the proportion is greater than or equal to 0.7) and ratings for genres they watch less frequently (when the proportion is less than 0.7). From the boxplot, we can tell that there is a difference in the distribution of average ratings between these two groups, demonstrating that genres watched more often tend to receive higher ratings in general compared to those watched less often.
 
-Topic 3: 
-Do different genres tend to evoke different emotions in people?
+## Do different genres tend to evoke different emotions in people?
 
 ```{r}
 sentiment <- read.csv("/Users/erinma/Documents/STAT5702/nycdata/Exploratory/Sentiment.csv")
