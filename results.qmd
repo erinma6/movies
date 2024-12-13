@@ -1,6 +1,6 @@
 # Results
 
-## What is distribution of ratings for movies?
+## What is the Distribution of Ratings Across Users
 
 ```{r}
 library(tidyverse)
@@ -12,18 +12,7 @@ avg_rating=result |>
   summarise(title = first(title),
             genres = first(genres),
             mean_score=mean(rating, na.rm=T)) 
-ggplot(avg_rating, aes(x = mean_score)) +
-  geom_histogram(fill = "lightblue", color = "black") +
-  labs(title = "Distribution of Ratings Across Movies", x = "Average Rating", y = "Number of Movies") +
-  theme_minimal()
 
-```
-
-The resulting histogram shows that the data is unimodal with the count peaking around 3. This means that the majority of movies are rated as average. It is also important to note that there are small peaks coming from the left and right of the data meaning that a select number of movies are consistently rated really good or really bad. 
-
-## What is the Distribution of Ratings Across Users
-
-```{r}
 ratings=read.csv('/Users/erinma/Documents/STAT5702/ml-32m/ratings.csv')
 
 
@@ -36,7 +25,7 @@ ggplot(avg_rating_user, aes(x = mean_score)) +
   theme_minimal()
 ```
 
-This histogram shows that the dataset is skewing to the left with a peak between 3 and 4. The peak being above an average rating demonstrates that these users generally will rate movies fairly positively. 
+This histogram shows that the dataset is skewing to the left with a peak between 3 and 4. The peak being above an average rating demonstrates that these users generally will rate movies fairly positively. To assess the distribution of ratings across different movies, please view our interactive graph
 
 ## Certain Movies are Labeled Multiple Genres. Let's Review the Distribution of Movies and their Genre Counts
 
@@ -57,10 +46,9 @@ ggplot(avg_rating, aes(x = genreCount)) +
 
 ```
 
-Some movies fall under multiple genres and thus are labeled as such. To check this, we created a After an initial check to see that the range of labeled genres for each movie ranges from 1 to 10, we decided to make a graph seeing the number of movies that are labeled under each Genre Count. With this, we can see that the majority of movies are only labeled under one genre and the number of movies decreases as the genre count increases. 
+Some movies fall under multiple genres and thus are labeled as such. To check this, we created an initial check to see that the range of labeled genres (or genre counts) for each movie ranges from 1 to 10. We decided to make a graph seeing the number of movies that are labeled under each Genre Count. With this, we can see that the majority of movies are only labeled under one genre and the number of movies decreases as the genre count increases.
 
 ## Does a Movie being labeled With More Genres Mean That it Will Be Better Rated?
-
 
 ```{r}
 avg_rating_genre=avg_rating |>
@@ -82,7 +70,7 @@ ggplot(avg_rating_genre, aes(x = mean_score_genre, y = genreCount)) +
   theme_minimal()
 ```
 
-We built a Cleveland Dot Plot to check on the Rating for each genre count. The resulting graph above shows no pattern between genre counts and average rating as it seems that movies with 7 genres labeled rank better than movies with 1 genre labeled but movies with 10 genres labeled rank worse than movies with 1 genre labeled. Additionally, all of these average ratings are grouped around a rating of 3 meaning that there is no genre count that is significantly rated better than the others. Furthermore, biases in average rating might occur as (as seen above in the bar chart) as the genre count increases, the number of movies in that category decreases which means that the mean is not accurate as it is based on less data. 
+We built a Cleveland Dot Plot to check on the Rating for each genre count. The resulting graph above shows no pattern between genre counts and average rating as it seems that movies with 7 genres labeled rank better than movies with 1 genre labeled but movies with 10 genres labeled rank worse than movies with 1 genre labeled. Additionally, all of these average ratings are grouped around a rating of 3 meaning that no genre count is significantly rated better than the others. Furthermore, biases in average rating might occur as (as seen above in the bar chart) the genre count increases, the number of movies in that category decreases which means that the mean is not accurate as it is based on less data.
 
 ## Viewing the Distribution of Ratings for Movies Given the Genre Count
 
@@ -93,7 +81,7 @@ ggplot(avg_rating, aes(x=mean_score))+
   labs(title = "Distribution of Ratings Faceted by Genre Count", x = "Average Rating", y = "Number of Movies")
 ```
 
-By faceting on Genre Counts we can see if anomalies in distribution exist in certain genre counts. The resulting graph shows us that besides certain graphs that have minimal data, most genre counts follow the same distribution of having movies rated at an average rating
+By faceting on Genre Counts we can see if anomalies in distribution exist in certain genre counts. The resulting graph shows us that besides certain graphs that have minimal data, most genre counts follow the same distribution of having movies rated at an average rating.
 
 ## Let's see the Distribution of Ratings when Looking at Singular Genre Movies
 
@@ -106,10 +94,9 @@ ggplot(avg_rating_1, aes(x=mean_score))+
   labs(title = "Distribution of Ratings Faceted by Genres for Singular Genre Movies", x = "Average Rating", y = "Number of Movies")
 ```
 
-When faceting on genre for single genre movies, we can see that most genres follow the trends we previously discussed. However, we can note that the distribution of Children's Movies is very interesting as a large portion of movies are rated really poorly and a large portion of movies are rated really positively. Similarly, for Romance movies, it seems that the highest bar in the histogram occurs near 5 meaning that a large portion of Romance Movies are rated very positively. 
+When faceting on genre for single genre movies, we can see that most genres follow the trends we previously discussed. However, we can note that the distribution of Children's Movies is very interesting as a large portion of movies are rated really poorly and a large portion of movies are rated really positively. Similarly, for Romance movies, it seems that the highest bar in the histogram occurs near 5 meaning that a large portion of Romance Movies are rated very positively.
 
-## Double Checking The Counts of Each Genre for Single Genre Movies. 
-
+## Double Checking The Counts of Each Genre for Single Genre Movies
 
 ```{r}
 avg_rating_1$genres <- fct_reorder(avg_rating_1$genres, avg_rating_1$genres, .fun = length, .desc = TRUE)
@@ -153,22 +140,22 @@ ggplot(imdbCombineMinutes, aes(x=runtimeMinutes, y=mean_score))+
   geom_hex()+
   scale_fill_distiller(palette='Reds', direction=1) + 
   facet_wrap(~titleType) +
-  labs(title = "Heat Map of Score Vs. RunTime ", x = "Title RunTime", y = "Average Rating")+
+  labs(title = "Heat Map of Score Vs. RunTime ", x = "RunTime", y = "Average Rating")+
   theme(axis.text.x = element_text(angle = 90))
 ```
-
 
 ```{r}
 ggplot(imdbCombineMinutes, aes(x=runtimeMinutes, y=mean_score, color=titleType))+
   geom_point(alpha=0.5)+
   theme(axis.text.x = element_text(angle = 90)) +
-  labs(title = "Scatterplot of Score Vs. RunTime ", x = "Title RunTime", y = "Average Rating", color = "Film Type")
+  labs(title = "Scatterplot of Score Vs. RunTime ", x = "RunTime", y = "Average Rating", color = "Film Type")
 ```
 
-The Heat Map and Scatterplot show that very few title runtime goes above 400 minutes but there generally seems like there is a positive trend between Rating and Title RunTime. Furthermore, it seems that most shorts and tvshorts have the quickest title runtimes and that movie title runtimes seem to be generally higher than shorts 
+The Heat Map and Scatterplot show that very few runtimes go above 400 minutes but there generally seems like there is no trend between Rating and RunTime. Furthermore, it seems that most shorts and tvshorts have the quickest runtimes and that movie runtimes seem to be generally higher than shorts. This aligns with our general knowledge of shorts and movies. 
 
-Topic 1: 
-Are certain genre selections correlated? Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
+## Are certain genre selections correlated?
+
+###### Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
 
 ```{r}
 library(dplyr)
@@ -232,6 +219,7 @@ grid.arrange(grobs = plot_list, ncol = 3)
 grid.text("Positive Correlation between Genre Selection", 
           x = 0.5, y = 0.982, gp = gpar(fontsize = 13, fontface = "bold"))
 ```
+
 These pairs of genres demonstrate a relatively high positive correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to also watch lots of movies in genre B.
 
 ```{r}
@@ -279,8 +267,11 @@ grid.text("Negative Correlation between Genre Selection",
 
 These pairs of genres demonstrate a relatively high negative correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to not watch movies in genre B.
 
-Topic 2:
-Could movie ratings include people's bias? If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
+## Could movie ratings include people's bias? 
+
+###### If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
+
+
 
 ```{r}
 merged_data <- read.csv("/Users/erinma/Documents/STAT5702/nycdata/Exploratory/Prop_AvgRating.csv")
@@ -327,8 +318,7 @@ ggplot(combined_data, aes(x = proportion_group, y = avg_rating, fill = proportio
 
 By using a proportion cutoff of 0.7, we divide all ratings into two categories: ratings for genres that a specific user watches frequently (when the proportion is greater than or equal to 0.7) and ratings for genres they watch less frequently (when the proportion is less than 0.7). From the boxplot, we can tell that there is a difference in the distribution of average ratings between these two groups, demonstrating that genres watched more often tend to receive higher ratings in general compared to those watched less often.
 
-Topic 3: 
-Do different genres tend to evoke different emotions in people?
+## Do different genres tend to evoke different emotions in people?
 
 ```{r}
 sentiment <- read.csv("/Users/erinma/Documents/STAT5702/nycdata/Exploratory/Sentiment.csv")
