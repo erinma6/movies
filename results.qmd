@@ -154,8 +154,12 @@ ggplot(imdbCombineMinutes, aes(x=runtimeMinutes, y=mean_score, color=titleType))
 The Heat Map and Scatterplot show that very few runtimes go above 400 minutes but there generally seems like there is no trend between Rating and RunTime. Furthermore, it seems that most shorts and tvshorts have the quickest runtimes and that movie runtimes seem to be generally higher than shorts. This aligns with our general knowledge of shorts and movies. 
 
 ## Are certain genre selections correlated?
+<<<<<<< HEAD
 
 ###### Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
+=======
+Specifically, for people who watch a lot of movies of a particular genre, are they more likely to gravitate toward another genre, or perhaps they are more likely to steer clear of a different genre?
+>>>>>>> 87be736befadc3df37c556ee182ef027662836e5
 
 ```{r}
 library(dplyr)
@@ -267,11 +271,16 @@ grid.text("Negative Correlation between Genre Selection",
 
 These pairs of genres demonstrate a relatively high negative correlation with each other, meaning that for each pair (A, B) shown in the graph, people who watch a lot of movies in genre A are more likely to not watch movies in genre B.
 
+<<<<<<< HEAD
 ## Could movie ratings include people's bias? 
 
 ###### If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
 
 
+=======
+## Could movie ratings include people's bias?
+If people tend to watch lots of movies of a certain genre, is it more likely that they would rate that specific genre higher?
+>>>>>>> 87be736befadc3df37c556ee182ef027662836e5
 
 ```{r}
 merged_data <- read.csv("/Users/erinma/Documents/STAT5702/nycdata/Exploratory/Prop_AvgRating.csv")
